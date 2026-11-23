@@ -1,0 +1,76 @@
+name: CI — Go
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          check-latest: true
+          cache: true
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+          args: --timeout=5m
+
+  test:
+    name: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history so the coverage ratchet can read the base branch.
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          check-latest: true
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test with race detector and coverage
+        run: |
+          go test ./... -race -covermode=atomic -coverprofile=coverage.out
+          go tool cover -func=coverage.out | tail -n 1
+
+      - name: Read coverage floor
+        id: floor
+        run: echo "value=$(tr -d '[:space:]' < .coverage-floor)" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce coverage floor
+        env:
+          COVERAGE_FLOOR: ${{ steps.floor.outputs.value }}
+        run: ./.github/scripts/check-coverage.sh coverage.out
+
+      - name: Enforce coverage ratchet (floor may not drop)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          ./.github/scripts/check-floor.sh

@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use EVoyage in academic work or in a product, please cite it as below."
+title: EVoyage
+abstract: >-
+  EVoyage is an electric-vehicle route planner that treats waiting time at charging
+  stations as a first-class routing cost. It folds day-by-hour occupancy priors into the
+  shortest-path search over OpenStreetMap-derived regional graphs, and ships a
+  self-contained C++23 routing and guidance engine with a Go + HTMX web front-end.
+type: software
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/jaja360/evoyage"
+url: "https://github.com/jaja360/evoyage"
+keywords:
+  - electric-vehicles
+  - route-planning
+  - charging-stations
+  - openstreetmap
+  - waiting-time
+authors:
+  - family-names: Champagne Gareau
+    given-names: Jaël
+preferred-citation:
+  type: conference-paper
+  title: >-
+    An Efficient Electric Vehicle Path-Planner That Considers the Waiting Time
+  authors:
+    - family-names: Champagne Gareau
+      given-names: Jaël
+    - family-names: Beaudry
+      given-names: Éric
+    - family-names: Makarenkov
+      given-names: Vladimir
+  collection-title: >-
+    Proceedings of the 27th ACM SIGSPATIAL International Conference on Advances in
+    Geographic Information Systems
+  conference:
+    name: ACM SIGSPATIAL Conference 2019
+    date-start: "2019-11-05"
+    date-end: "2019-11-08"
+    location: Chicago, IL, USA
+  year: 2019
+  publisher:
+    name: ACM
+  doi: 10.1145/3347146.3359064

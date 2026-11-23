@@ -1,0 +1,8 @@
+extends:
+  - '@commitlint/config-conventional'
+
+rules:
+  # Allow slightly longer subjects than the default while keeping them scannable.
+  header-max-length: [2, 'always', 100]
+  # Sentence case in the subject is fine (e.g. "Planner: fold queue time").
+  subject-case: [0]

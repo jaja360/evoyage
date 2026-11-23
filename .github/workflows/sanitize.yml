@@ -1,0 +1,46 @@
+name: Sanitizers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitize:
+    name: ${{ matrix.sanitizer }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sanitizer: asan
+            preset: asan
+          - sanitizer: ubsan
+            preset: ubsan
+          - sanitizer: tsan
+            preset: tsan
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build g++-14
+
+      # The asan/ubsan/tsan test presets also set the matching runtime options.
+      - name: Configure (${{ matrix.preset }})
+        run: cmake --preset "${{ matrix.preset }}" -DCMAKE_CXX_COMPILER=g++-14
+
+      - name: Build (${{ matrix.preset }})
+        run: cmake --build --preset "${{ matrix.preset }}"
+
+      - name: Test under ${{ matrix.sanitizer }}
+        run: ctest --preset "${{ matrix.preset }}"

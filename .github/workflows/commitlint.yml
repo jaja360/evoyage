@@ -1,0 +1,54 @@
+name: Commitlint
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    name: pr-title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      # PRs are squash-merged, so the PR title becomes the commit subject.
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+          requireScope: false
+          wip: true
+
+  commits:
+    name: commits
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.yml
+          failOnWarnings: true

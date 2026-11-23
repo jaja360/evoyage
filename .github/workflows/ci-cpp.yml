@@ -1,0 +1,84 @@
+name: CI — C++
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc / Debug
+            compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
+            preset: debug
+            # The presets pin the unversioned compiler; CI selects GCC 14 (the
+            # newest GCC packaged for Ubuntu 24.04).
+            configure_args: "-DCMAKE_CXX_COMPILER=g++-14"
+          - name: gcc / Release
+            compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
+            preset: release
+            configure_args: "-DCMAKE_CXX_COMPILER=g++-14"
+          - name: clang / Debug
+            compiler: clang
+            cc: clang
+            cxx: clang++
+            preset: clang-debug
+            configure_args: ""
+          - name: clang / Release
+            compiler: clang
+            cc: clang
+            cxx: clang++
+            preset: release
+            # The release preset pins g++; override it for the Clang lane.
+            configure_args: "-DCMAKE_CXX_COMPILER=clang++"
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build
+          if [[ "${{ matrix.compiler }}" == gcc ]]; then
+            sudo apt-get install -y --no-install-recommends g++-14
+          fi
+          if [[ "${{ matrix.compiler }}" == clang ]]; then
+            sudo apt-get install -y --no-install-recommends clang
+          fi
+
+      - name: Toolchain versions
+        run: |
+          "$CC" --version | head -n 1
+          "$CXX" --version | head -n 1
+          cmake --version | head -n 1
+          ninja --version
+
+      # -Werror lives in the build definition; do not add warning flags here.
+      - name: Configure
+        run: cmake --preset "${{ matrix.preset }}" ${{ matrix.configure_args }}
+
+      - name: Build
+        run: cmake --build --preset "${{ matrix.preset }}"
+
+      # Test presets set outputOnFailure and noTestsAction=error.
+      - name: Test
+        run: ctest --preset "${{ matrix.preset }}"

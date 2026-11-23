@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Jaël Champagne Gareau
+# Formatting style for EVoyage. Consistency across the codebase matters more than taste:
+# every .cpp/.hpp file must be formatted with this file (CI enforces --dry-run --Werror).
+---
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: c++23
+
+# Layout
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: None
+BreakBeforeBraces: Attach
+IndentCaseLabels: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+SeparateDefinitionBlocks: Leave
+InsertNewlineAtEOF: true
+
+# Alignment and wrapping
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: None
+AlignConsecutiveAssignments:
+  Enabled: false
+AlignConsecutiveDeclarations:
+  Enabled: false
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: None
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: BeforeColon
+BreakStringLiterals: true
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+QualifierAlignment: Leave
+SpaceBeforeParens: ControlStatements
+SpacesInAngles: Never
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+SpacesInContainerLiterals: false
+SpacesBeforeTrailingComments: 2
+
+# Includes
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^"evoyage/'
+    Priority: 1
+  - Regex: '^<doctest/'
+    Priority: 2
+  - Regex: '^<(algorithm|array|chrono|cmath|cstddef|cstdint|cstdlib|exception|format|iostream|limits|numbers|optional|span|stdexcept|string|string_view|tuple|utility|vector)>'
+    Priority: 3
+  - Regex: '.*'
+    Priority: 4
+
+# Comments
+ReflowComments: true

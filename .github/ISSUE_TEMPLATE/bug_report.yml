@@ -1,0 +1,90 @@
+name: Bug report
+description: Something is wrong — a crash, a wrong route, a broken build, bad data.
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Do not report security vulnerabilities here** — see
+        [SECURITY.md](https://github.com/jaja360/evoyage/blob/main/SECURITY.md).
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Where does the problem show up?
+      options:
+        - C++ engine (ingestion / planner / guidance)
+        - Go web front-end (UI, API, region manifests)
+        - Build, CI or developer tooling
+        - Documentation
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: region
+    attributes:
+      label: Region / dataset
+      description: Which region manifest, OSM extract, or charging-data provider were you using?
+      placeholder: "e.g. quebec-2026.10 (OSM Québec extract + provider X)"
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Output of `git rev-parse --short HEAD`, a release tag, or "main as of <date>".
+      placeholder: "e.g. 1a2b3c4"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, compiler/CMake versions, Go version, browser and version (for UI issues).
+      placeholder: |
+        OS: Ubuntu 24.04
+        Compiler: GCC 14.2
+        Go: 1.27
+        Browser: Firefox 141
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands or clicks. Smaller is better.
+      placeholder: |
+        1. cmake --preset debug && cmake --build --preset debug
+        2. ./build/... --region quebec-2026.10 ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include the route request/response, logs, or a screenshot when relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Sanitised logs, stack traces, related issues. Remove personal locations, keys and tokens.
+    validations:
+      required: false

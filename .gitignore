@@ -1,0 +1,72 @@
+# ── Build output ─────────────────────────────────────────────────────────────
+build/
+build-*/
+build_*/
+out/
+cmake-build-*/
+compile_commands.json
+CMakeUserPresets.json
+
+# ── Compilers, linkers, sanitizers ──────────────────────────────────────────
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+coverage.out
+coverage.html
+
+# ── Go ──────────────────────────────────────────────────────────────────────
+vendor/
+go.work
+go.work.sum
+
+# ── Data artefacts — NEVER commit ───────────────────────────────────────────
+# These are per-region build products, often gigabytes, and carry ODbL terms.
+*.osm.pbf
+*.osm.xml
+*.osm.bz2
+graph.bin
+*.graph
+*.pmtiles
+*.mbtiles
+*.osrm
+*.osrm.*
+veplanData/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ── Local environment ───────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.local
+*.log
+
+# ── Editors and OS junk ─────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.cache/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Scratch ─────────────────────────────────────────────────────────────────
+tmp/
+*.tmp

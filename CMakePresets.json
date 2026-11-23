@@ -1,0 +1,206 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "EVOYAGE_BUILD_TESTS": "ON"
+      },
+      "warnings": {
+        "deprecated": false
+      },
+      "description": "Common settings: Ninja, compile_commands.json, and deprecation warnings from third-party projects (doctest) silenced."
+    },
+    {
+      "name": "debug",
+      "inherits": "base",
+      "displayName": "Debug (GCC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "displayName": "Release (GCC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "clang-debug",
+      "inherits": "base",
+      "displayName": "Debug (Clang)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "base",
+      "displayName": "Debug + AddressSanitizer (GCC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fno-omit-frame-pointer -fno-sanitize-recover=all -g",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=address"
+      }
+    },
+    {
+      "name": "ubsan",
+      "inherits": "base",
+      "displayName": "Debug + UndefinedBehaviorSanitizer (GCC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_FLAGS": "-fsanitize=undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -g",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=undefined",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=undefined"
+      }
+    },
+    {
+      "name": "tsan",
+      "inherits": "base",
+      "displayName": "Debug + ThreadSanitizer (GCC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer -fno-sanitize-recover=all -g",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=thread"
+      }
+    },
+    {
+      "name": "fuzz",
+      "inherits": "base",
+      "displayName": "Coverage instrumentation for libFuzzer (Clang)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-fsanitize=fuzzer-no-link,address -fno-omit-frame-pointer -g",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=fuzzer-no-link,address",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=fuzzer-no-link,address"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "clang-debug",
+      "configurePreset": "clang-debug"
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan"
+    },
+    {
+      "name": "ubsan",
+      "configurePreset": "ubsan"
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan"
+    },
+    {
+      "name": "fuzz",
+      "configurePreset": "fuzz"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "clang-debug",
+      "configurePreset": "clang-debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "ubsan",
+      "configurePreset": "ubsan",
+      "environment": {
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan",
+      "environment": {
+        "TSAN_OPTIONS": "halt_on_error=1"
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ]
+}

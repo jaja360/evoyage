@@ -1,0 +1,24 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+  # GitHub workflows conventionally start with `name:` and need no document marker.
+  document-start: disable
+  # `on:` is a key in GitHub Actions; do not treat it as a boolean.
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  # Issue/PR templates contain prose paragraphs in block scalars.
+  comments-indentation: disable
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  indentation:
+    spaces: 2
+    indent-sequences: consistent

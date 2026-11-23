@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Jaël Champagne Gareau
+# clang-tidy configuration for EVoyage: strict on four core families (bugprone, modernize,
+# performance, readability). The enabled set must stay at zero diagnostics for the whole
+# tree; CI runs clang-tidy -p build/<preset> as a gate, so a new warning breaks the build.
+#
+# Disabled checks, with reasons:
+# - bugprone-easily-swappable-parameters: several APIs are intentionally symmetric
+#   (origin/destination, entry/exit bearings); swapping the arguments is caught by the unit
+#   tests, not by parameter naming.
+# - modernize-use-trailing-return-type: house style keeps ordinary return types everywhere.
+# - readability-identifier-naming: the codebase mixes snake_case functions, PascalCase types
+#   and k-prefixed constants, which this check cannot express without per-kind lists.
+# - readability-magic-numbers: geodesy reads better with literals than with dozens of
+#   one-use constants (90.0, 180.0, 360.0, 540.0, 2.0).
+# - readability-suspicious-call-argument: fires on the same symmetric APIs as above.
+# - readability-avoid-nested-conditional-operator: no nested ternaries are used; the check is
+#   redundant with review.
+# - modernize-use-designated-initializers: value semantics rely on constructors; designated
+#   initializers would bypass LatLng validation.
+---
+Checks: >
+  bugprone-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-naming,
+  -readability-magic-numbers,
+  -readability-suspicious-call-argument,
+  -readability-avoid-nested-conditional-operator,
+  -modernize-use-designated-initializers,
+
+WarningsAsErrors: 'bugprone-*,modernize-*,performance-*,readability-*'
+HeaderFilterRegex: '(include|src|tests)/'
+FormatStyle: file
+CheckOptions:
+  # doctest's CHECK macro expands to nested conditionals; ignore macro bodies when measuring
+  # complexity so that test cases are not penalized for using the assertion macros.
+  readability-function-cognitive-complexity.IgnoreMacros: true
+  readability-else-after-return.IgnoreMacros: true

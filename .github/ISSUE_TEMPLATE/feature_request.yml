@@ -1,0 +1,61 @@
+name: Feature request
+description: Propose a capability, a data source, or an improvement.
+title: "feat: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        EVoyage is early-stage. Please frame requests around the user problem first, then
+        the mechanism. Check the roadmap in the README before filing.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't you do today, or what is unnecessarily hard/slow/wrong?
+      placeholder: "When planning a long trip in winter, the planner ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should EVoyage do? Rough is fine.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing workarounds, other tools, or simpler options.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Ingestion (OSM, charging data, occupancy priors)
+        - Planner core (waiting-time model, search)
+        - Guidance (manoeuvres, map matching)
+        - Web front-end (Go + HTMX)
+        - Data / region manifests
+        - Tooling and CI
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: >-
+        Papers, datasets, screenshots, related projects. Note licensing and attribution
+        implications for new data sources.
+    validations:
+      required: false

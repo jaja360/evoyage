@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", "schedule:weekly"],
+  "timezone": "America/Toronto",
+  "labels": ["dependencies"],
+  "rebaseWhen": "behind-base-branch",
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "description": "Group non-major updates to keep the PR queue short",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "description": "CI actions are low risk: automerge once every required check is green",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true
+    },
+    {
+      "description": "Dev-only dependencies automerge with green checks",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "dev dependencies",
+      "automerge": true
+    },
+    {
+      "description": "Production Go modules still get human review",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    },
+    {
+      "description": "Major updates always arrive as separate, reviewed PRs",
+      "matchUpdateTypes": ["major"],
+      "separateMajorMinor": true,
+      "separateMultipleMajor": true,
+      "separateMultipleMinor": true,
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  }
+}
