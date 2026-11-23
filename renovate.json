@@ -35,9 +35,6 @@
     {
       "description": "Major updates always arrive as separate, reviewed PRs",
       "matchUpdateTypes": ["major"],
-      "separateMajorMinor": true,
-      "separateMultipleMajor": true,
-      "separateMultipleMinor": true,
       "automerge": false,
       "labels": ["dependencies", "major"]
     }
