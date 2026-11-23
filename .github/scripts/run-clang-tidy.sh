@@ -12,20 +12,15 @@ cd "$engine_dir"
 preset="${CLANG_TIDY_PRESET:-debug}"
 jobs="${CLANG_TIDY_JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)}"
 
-compile_db="$(find . -maxdepth 4 -name compile_commands.json -not -path './build/_deps/*' -print -quit)"
+compile_db="build/${preset}/compile_commands.json"
 
-if [[ -z "$compile_db" ]]; then
-  if [[ ! -f CMakePresets.json ]]; then
-    echo "::error::no compile_commands.json and no CMakePresets.json to generate one"
-    exit 1
-  fi
-  echo "Generating compile_commands.json via preset '${preset}'"
+if [[ ! -f "$compile_db" ]]; then
+  echo "No compilation database at ${compile_db}; generating via preset '${preset}'"
   cmake --preset "$preset"
-  compile_db="$(find . -maxdepth 4 -name compile_commands.json -not -path './build/_deps/*' -print -quit)"
 fi
 
-if [[ -z "$compile_db" ]]; then
-  echo "::error::compile_commands.json not found after configuring; is CMAKE_EXPORT_COMPILE_COMMANDS ON?"
+if [[ ! -f "$compile_db" ]]; then
+  echo "::error::${compile_db} still missing after configuring; is CMAKE_EXPORT_COMPILE_COMMANDS ON?"
   exit 1
 fi
 

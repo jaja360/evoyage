@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  # action-semantic-pull-request posts its verdict as a commit status on the PR head SHA.
+  statuses: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
