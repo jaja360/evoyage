@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <numbers>
 #include <stdexcept>
 #include <string>
@@ -32,12 +33,12 @@ constexpr double kDegreesPerRadian = kHalfTurnDegrees / std::numbers::pi;
 
 LatLng::LatLng(double latitude, double longitude) : lat{latitude}, lon{longitude} {
     if (!std::isfinite(lat) || std::abs(lat) > kMaxLatitudeDegrees) {
-        throw std::invalid_argument{"invalid latitude (must be finite and in [-90, 90]): " +
-                                    std::to_string(lat)};
+        throw std::invalid_argument{
+            std::format("invalid latitude (must be finite and in [-90, 90]): {}", lat)};
     }
     if (!std::isfinite(lon) || std::abs(lon) > kMaxLongitudeDegrees) {
-        throw std::invalid_argument{"invalid longitude (must be finite and in [-180, 180]): " +
-                                    std::to_string(lon)};
+        throw std::invalid_argument{
+            std::format("invalid longitude (must be finite and in [-180, 180]): {}", lon)};
     }
 }
 

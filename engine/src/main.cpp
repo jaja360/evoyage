@@ -2,8 +2,11 @@
 // Copyright (C) 2026 Jaël Champagne Gareau
 // Minimal command-line entry point for the EVoyage planner (placeholder for the real CLI).
 
-#include <iostream>
+#include <exception>
 #include <string_view>
+
+#include <cstdio>
+#include <print>
 
 #ifndef EVOYAGE_VERSION
 #error "EVOYAGE_VERSION must be provided by the build system"
@@ -15,48 +18,59 @@
 
 namespace {
 
-constexpr std::string_view kProgramName = "evoyage-planner";
+constexpr const char* kProgramName = "evoyage-planner";
 
-void print_usage(std::ostream& out) {
-    out << "Usage: " << kProgramName << " [OPTION]\n"
-        << "\n"
-        << "EVoyage - an EV route planner that accounts for charging stops.\n"
-        << "This is an early stub; routing is not implemented yet.\n"
-        << "\n"
-        << "Options:\n"
-        << "  -h, --help     Print this help message and exit.\n"
-        << "  -V, --version  Print the version and the git commit, then exit.\n";
+void print_usage(std::FILE* stream) {
+    std::println(stream, "Usage: {} [OPTION]", kProgramName);
+    std::println(stream);
+    std::println(stream, "EVoyage - an EV route planner that accounts for charging stops.");
+    std::println(stream, "This is an early stub; routing is not implemented yet.");
+    std::println(stream);
+    std::println(stream, "Options:");
+    std::println(stream, "  -h, --help     Print this help message and exit.");
+    std::println(stream, "  -V, --version  Print the version and the git commit, then exit.");
 }
 
 void print_version() {
-    std::cout << kProgramName << ' ' << EVOYAGE_VERSION << " (commit " << EVOYAGE_GIT_COMMIT
-              << ")\n";
+    std::println("{} {} (commit {})", kProgramName, EVOYAGE_VERSION, EVOYAGE_GIT_COMMIT);
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        print_usage(std::cerr);
+    try {
+        if (argc < 2) {
+            print_usage(stderr);
+            return 1;
+        }
+        if (argc > 2) {
+            std::println(stderr, "{}: too many arguments", kProgramName);
+            std::println(stderr);
+            print_usage(stderr);
+            return 1;
+        }
+
+        const std::string_view argument{argv[1]};
+        if (argument == "--help" || argument == "-h") {
+            print_usage(stdout);
+            return 0;
+        }
+        if (argument == "--version" || argument == "-V") {
+            print_version();
+            return 0;
+        }
+
+        std::println(stderr, "{}: unknown argument '{}'", kProgramName, argument);
+        std::println(stderr);
+        print_usage(stderr);
+        return 1;
+    } catch (const std::exception& error) {
+        // Best-effort reporting with non-throwing C stdio so no exception can escape main.
+        // modernize-use-std-print is suppressed here on purpose: std::println itself throws,
+        // which bugprone-exception-escape forbids inside this catch handler.
+        // NOLINTBEGIN(modernize-use-std-print)
+        std::fprintf(stderr, "%s: internal error: %s\n", kProgramName, error.what());
+        // NOLINTEND(modernize-use-std-print)
         return 1;
     }
-    if (argc > 2) {
-        std::cerr << kProgramName << ": too many arguments\n\n";
-        print_usage(std::cerr);
-        return 1;
-    }
-
-    const std::string_view argument{argv[1]};
-    if (argument == "--help" || argument == "-h") {
-        print_usage(std::cout);
-        return 0;
-    }
-    if (argument == "--version" || argument == "-V") {
-        print_version();
-        return 0;
-    }
-
-    std::cerr << kProgramName << ": unknown argument '" << argument << "'\n\n";
-    print_usage(std::cerr);
-    return 1;
 }
