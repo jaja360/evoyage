@@ -56,7 +56,7 @@ formatters:
     - goimports
   settings:
     gofumpt:
-      module-path: github.com/jaja360/evoyage
+      module-path: github.com/jaja360/evoyage/server
     goimports:
       local-prefixes:
-        - github.com/jaja360/evoyage
+        - github.com/jaja360/evoyage/server

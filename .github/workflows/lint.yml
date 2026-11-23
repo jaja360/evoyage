@@ -36,11 +36,11 @@ jobs:
         run: |
           clang-format --version
           mapfile -t files < <(
-            git ls-files 'include/*' 'src/*' 'tests/*' |
+            git ls-files 'engine/include/*' 'engine/src/*' 'engine/tests/*' |
               grep -E '\.(c|cc|cpp|cxx|h|hh|hpp|hxx|ipp|tpp)$' || true
           )
           if [[ ${#files[@]} -eq 0 ]]; then
-            echo "::error::no C++ sources found under include/, src/ or tests/"
+            echo "::error::no C++ sources found under engine/include/, engine/src/ or engine/tests/"
             exit 1
           fi
           echo "Checking ${#files[@]} file(s)"
@@ -49,6 +49,9 @@ jobs:
   clang-tidy:
     name: clang-tidy
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: engine
     steps:
       - uses: actions/checkout@v7
 
@@ -68,17 +71,20 @@ jobs:
       - name: Run clang-tidy
         env:
           CLANG_TIDY_PRESET: debug
-        run: ./.github/scripts/run-clang-tidy.sh
+        run: ${GITHUB_WORKSPACE}/.github/scripts/run-clang-tidy.sh
 
   gofumpt:
     name: gofumpt
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: server
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: server/go.mod
           check-latest: true
           cache: true
 
@@ -113,5 +119,6 @@ jobs:
           mapfile -t files < <(
             find .github -type f \( -name '*.yml' -o -name '*.yaml' \)
             find . -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \)
+            find engine server -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \)
           )
           yamllint -c .github/yamllint.yml "${files[@]}"

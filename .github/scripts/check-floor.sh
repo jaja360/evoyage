@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # Coverage-ratchet guard: on a pull request, the floor may rise but never fall.
 #
+# Safe to run from any directory inside the repository (CI runs it from server/).
+#
 # Usage: BASE_REF=origin/main ./.github/scripts/check-floor.sh
 # Environment:
 #   BASE_REF   git ref of the base branch (default: origin/main)
 set -euo pipefail
 
+repo_root="$(git rev-parse --show-toplevel)"
 floor_file="${COVERAGE_FLOOR_FILE:-.coverage-floor}"
+[[ "$floor_file" = /* ]] || floor_file="${repo_root}/${floor_file}"
+floor_rel="${floor_file#"${repo_root}"/}"
 base_ref="${BASE_REF:-origin/main}"
 
 read_floor() {
@@ -24,7 +29,7 @@ if ! [[ "$new_floor" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
   exit 1
 fi
 
-if ! old_content="$(git show "${base_ref}:${floor_file}" 2>/dev/null)"; then
+if ! old_content="$(git show "${base_ref}:${floor_rel}" 2>/dev/null)"; then
   echo "No $floor_file on ${base_ref}; this PR introduces the ratchet baseline (${new_floor}%)."
   exit 0
 fi

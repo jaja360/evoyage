@@ -14,7 +14,7 @@
 
 - [ ] PR title follows Conventional Commits (`feat(scope): subject`).
 - [ ] Tests added or updated for the new behaviour (bug fixes include a regression test).
-- [ ] Coverage floor respected: `./.github/scripts/check-coverage.sh` passes and
+- [ ] Coverage floor respected: `cd server && ../.github/scripts/check-coverage.sh` passes and
       `.coverage-floor` was not lowered.
 - [ ] Linters run locally: `clang-format`, `clang-tidy`, `gofumpt`, `golangci-lint`,
       `yamllint` (or `pre-commit run --all-files`).

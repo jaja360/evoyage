@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jaja360/evoyage/internal/server"
+	"github.com/jaja360/evoyage/server/internal/server"
 )
 
 // discardLogger returns a logger that drops every record.

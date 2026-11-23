@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jaja360/evoyage/internal/planner"
+	"github.com/jaja360/evoyage/server/internal/planner"
 )
 
 func TestRouteRequestValidate(t *testing.T) {

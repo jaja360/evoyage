@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jaja360/evoyage/internal/planner"
+	"github.com/jaja360/evoyage/server/internal/planner"
 )
 
 // StubClient must keep satisfying Client.

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Run clang-tidy over first-party C++ sources using the repository .clang-tidy.
+# Run clang-tidy over first-party C++ sources using the engine .clang-tidy.
 #
-# Expects CMakePresets.json to define a configure preset that exports
+# Expects engine/CMakePresets.json to define a configure preset that exports
 # compile_commands.json (CLANG_TIDY_PRESET, default: debug).
 set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root"
+engine_dir="${repo_root}/engine"
+cd "$engine_dir"
 
 preset="${CLANG_TIDY_PRESET:-debug}"
 jobs="${CLANG_TIDY_JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)}"
@@ -33,7 +34,7 @@ echo "Using compilation database: ${compile_db}"
 
 # Only first-party translation units; skip generated code and third-party deps.
 mapfile -t files < <(
-  python3 - "$compile_db" "$repo_root" <<'PY'
+  python3 - "$compile_db" "$engine_dir" <<'PY'
 import json
 import os
 import sys

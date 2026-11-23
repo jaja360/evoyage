@@ -1,4 +1,5 @@
 # ── Build output ─────────────────────────────────────────────────────────────
+# `build/` is unanchored, so it matches at any depth: engine/build/<preset> is covered.
 build/
 build-*/
 build_*/

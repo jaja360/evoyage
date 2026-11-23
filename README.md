@@ -26,8 +26,8 @@ It is **region-agnostic** (OpenStreetMap-based), **low-memory** by design, and
 
 | Layer | Stack | Role |
 | --- | --- | --- |
-| Routing & guidance engine | C++23, CMake presets, [doctest](https://github.com/doctest/doctest) | Graph ingestion, waiting-time-aware planner, manoeuvre guidance |
-| Web front-end | Go + [HTMX](https://htmx.org/) | HTTP API, map UI, region manifests |
+| Routing & guidance engine (`engine/`) | C++23, CMake presets, [doctest](https://github.com/doctest/doctest) | Graph ingestion, waiting-time-aware planner, manoeuvre guidance |
+| Web front-end (`server/`) | Go + [HTMX](https://htmx.org/) | HTTP API, map UI, region manifests |
 | Contract | JSON over a Unix domain socket | The Go front-end talks to the C++ engine; no in-process bridging |
 
 The engine is **self-contained**: EVoyage no longer depends on an external routing engine
@@ -44,10 +44,14 @@ region actually needs.
 ## Quick start (development)
 
 Prerequisites: a C++23 compiler (GCC 14+ or Clang 18+), CMake 3.28+, Ninja, Go (version
-pinned by `go.mod`), and `clang-format`/`gofumpt` for the local hooks.
+pinned by `server/go.mod`), and `clang-format`/`gofumpt` for the local hooks.
+
+The repository is a monorepo with two independently built halves: `engine/` (C++23) and
+`server/` (Go). All C++ and Go commands below run from inside the matching directory.
 
 ```bash
-# C++ engine — configure, build, test (presets are defined in CMakePresets.json)
+# C++ engine — configure, build, test (presets are defined in engine/CMakePresets.json)
+cd engine
 cmake --preset debug
 cmake --build --preset debug
 ctest --preset debug
@@ -60,15 +64,17 @@ cmake --preset release && cmake --build --preset release && ctest --preset relea
 cmake --preset asan && cmake --build --preset asan && ctest --preset asan
 
 # Go front-end
+cd ../server
 go build ./cmd/...
 go test ./... -race
 go run ./cmd/evoyage-server
 
-# Everything the CI checks, locally
+# Everything the CI checks, locally (run from the repository root)
+cd ../..
 pre-commit run --all-files
 ```
 
-Build artefacts land in `build/`, which is ignored by Git. Do not commit datasets: map
+Build artefacts land in `engine/build/`, which is ignored by Git. Do not commit datasets: map
 extracts (`*.osm.pbf`), compiled graphs (`graph.bin`), tiles and station databases are
 generated per region and are intentionally excluded.
 
@@ -114,6 +120,8 @@ EVoyage is a rewrite of research published as:
 > (SIGSPATIAL '19), 2019. DOI: [10.1145/3347146.3359064](https://doi.org/10.1145/3347146.3359064).
 
 If you use EVoyage in academic work, please cite it via [`CITATION.cff`](CITATION.cff).
+GitHub renders a "Cite this repository" button from that file and exports BibTeX on demand,
+so `CITATION.cff` is the single source of truth for citations.
 
 ## License
 

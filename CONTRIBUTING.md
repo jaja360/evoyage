@@ -14,7 +14,7 @@ Thanks for helping. EVoyage is a monorepo with a **C++23 routing/guidance engine
 | C++ compiler | GCC 14+ or Clang 18+ | engine |
 | CMake | 3.28+ | engine build (presets) |
 | Ninja | any recent | presets default generator |
-| Go | as pinned in `go.mod` | web front-end |
+| Go | as pinned in `server/go.mod` | web front-end |
 | `clang-format` | 23.x (`python -m pip install clang-format==23.1.5`) | formatting gate |
 | `clang-tidy` | 23.x (`python -m pip install clang-tidy==23.1.4`) | static-analysis gate |
 | `gofumpt` | `go install mvdan.cc/gofumpt@latest` | Go formatting gate |
@@ -34,13 +34,18 @@ Node.js install is required.
 
 ## Build and test
 
+The repository is a monorepo: the C++ engine lives in `engine/` and the Go server in
+`server/`. Build and test each half from its own directory.
+
 ```bash
 # C++ engine
+cd engine
 cmake --preset debug             # also: release, clang-debug, asan, ubsan, tsan, fuzz
 cmake --build --preset debug
 ctest --preset debug
 
 # Go front-end
+cd ../server
 go build ./...
 go vet ./...
 go test ./... -race -cover -coverprofile=coverage.out
@@ -57,15 +62,19 @@ are blocking — there is no "merge now, fix later" path.
 
 ### 1. Formatting — C++
 
+Run from the repository root:
+
 ```bash
-clang-format --dry-run --Werror $(git ls-files 'include/*' 'src/*' 'tests/*' |
+clang-format --dry-run --Werror $(git ls-files 'engine/include/*' 'engine/src/*' 'engine/tests/*' |
   grep -E '\.(c|cc|cpp|cxx|h|hh|hpp|hxx|ipp|tpp)$')
 ```
 
-The repository `/.clang-format` is authoritative. To fix, drop `--dry-run --Werror` (or run
-`pre-commit run clang-format --all-files`).
+The engine's `engine/.clang-format` is authoritative. To fix, drop `--dry-run --Werror` (or
+run `pre-commit run clang-format --all-files`).
 
 ### 2. Formatting — Go
+
+Run from `server/`:
 
 ```bash
 gofumpt -l -d .        # non-empty output = failure
@@ -74,31 +83,43 @@ gofumpt -w .           # fix
 
 ### 3. Static analysis — clang-tidy
 
+`engine/.clang-tidy` is authoritative; the script configures the engine and reads its
+compilation database.
+
 ```bash
+cd engine
 cmake --preset debug                # needs compile_commands.json
-./.github/scripts/run-clang-tidy.sh # uses the repo's .clang-tidy
+../../.github/scripts/run-clang-tidy.sh
 ```
+
+From the repository root the same script can be run directly as
+`./.github/scripts/run-clang-tidy.sh`; it locates `engine/` itself.
 
 ### 4. Static analysis — Go
 
+Run from `server/`:
+
 ```bash
-golangci-lint run    # configuration: .golangci.yml
+golangci-lint run    # configuration: server/.golangci.yml
 go vet ./...
 ```
 
 ### 5. YAML
 
+Run from the repository root:
+
 ```bash
 yamllint -c .github/yamllint.yml \
   $(find .github -type f \( -name '*.yml' -o -name '*.yaml' \)) \
-  $(find . -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \))
+  $(find . -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \)) \
+  $(find engine server -maxdepth 1 -type f \( -name '*.yml' -o -name '*.yaml' \))
 ```
 
 ### 6. Tests
 
 ```bash
-ctest --preset debug
-go test ./... -race
+cd engine && ctest --preset debug
+cd server && go test ./... -race
 ```
 
 New behaviour needs tests. Bug fixes need a regression test that fails before the fix.
@@ -106,6 +127,7 @@ New behaviour needs tests. Bug fixes need a regression test that fails before th
 ### 7. Sanitizers
 
 ```bash
+cd engine
 for p in asan ubsan tsan; do
   cmake --preset "$p" && cmake --build --preset "$p" && ctest --preset "$p"
 done
@@ -117,8 +139,13 @@ done
 CI accepts. The check is:
 
 ```bash
-./.github/scripts/check-coverage.sh   # fails below the floor
+cd server
+go test ./... -coverprofile=coverage.out
+../.github/scripts/check-coverage.sh coverage.out   # fails below the floor
 ```
+
+The script resolves `.coverage-floor` from the repository root, so it works from any
+directory in the tree.
 
 Rules:
 
@@ -138,6 +165,32 @@ Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`
 
 Squash-merge keeps `main` readable; the PR title becomes the commit subject.
 
+## Copyright headers
+
+Every source file starts with an SPDX identifier line:
+
+```
+SPDX-License-Identifier: AGPL-3.0-or-later
+```
+
+followed by one or more copyright lines. The policy:
+
+- The **SPDX line is required** in every source file (C++, Go, shell, CMake, YAML).
+  CI and review treat a missing SPDX line as a defect.
+- The **copyright line** stays with the original author on files they create.
+- A contributor creating a **new** file adds their own copyright line beneath the existing
+  ones, in the form `Copyright (C) <year> <name or handle>`.
+- **Ordinary edits do not modify headers.** Git history is the source of truth for who
+  changed what; churning copyright lines on every touch produces merge conflicts and noise.
+- A **substantial rewrite** of a file may add a copyright line or extend an existing year
+  span (e.g. `2026` → `2026-2027`). Use judgement: rewriting most of a file qualifies,
+  fixing a bug does not.
+
+Signing off commits ([Developer Certificate of Origin](https://developercertificate.org/),
+`git commit -s`) is optional today and encouraged for contributors sending substantial
+patches. It may become a merge requirement in the future; adding a `Signed-off-by` trailer
+now costs nothing and is never removed.
+
 ## Review expectations
 
 - Keep changes scoped. Unrelated refactors belong in their own PR.
@@ -147,6 +200,9 @@ Squash-merge keeps `main` readable; the PR title becomes the commit subject.
   per-region build artefacts (see `.gitignore`). Providers and attribution belong in the
   region manifest and README.
 - Update `README.md` attribution when you add a region or a charging-data provider.
+- Keep citations in `CITATION.cff`: it is the single source of truth (GitHub generates the
+  BibTeX export and the "Cite this repository" button from it). Update it when the paper
+  metadata or the software author list changes.
 
 ## Maintainer checklist — branch protection (manual, one-time)
 

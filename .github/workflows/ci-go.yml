@@ -17,12 +17,15 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: server
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: server/go.mod
           check-latest: true
           cache: true
 
@@ -34,10 +37,14 @@ jobs:
         with:
           version: v2.15.0
           args: --timeout=5m
+          working-directory: server
 
   test:
     name: test
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: server
     steps:
       - uses: actions/checkout@v7
         with:
@@ -46,7 +53,7 @@ jobs:
 
       - uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: server/go.mod
           check-latest: true
           cache: true
 
@@ -60,12 +67,12 @@ jobs:
 
       - name: Read coverage floor
         id: floor
-        run: echo "value=$(tr -d '[:space:]' < .coverage-floor)" >> "$GITHUB_OUTPUT"
+        run: echo "value=$(tr -d '[:space:]' < "${GITHUB_WORKSPACE}/.coverage-floor")" >> "$GITHUB_OUTPUT"
 
       - name: Enforce coverage floor
         env:
           COVERAGE_FLOOR: ${{ steps.floor.outputs.value }}
-        run: ./.github/scripts/check-coverage.sh coverage.out
+        run: ${GITHUB_WORKSPACE}/.github/scripts/check-coverage.sh coverage.out
 
       - name: Enforce coverage ratchet (floor may not drop)
         if: github.event_name == 'pull_request'
@@ -73,4 +80,4 @@ jobs:
           BASE_REF: origin/${{ github.base_ref }}
         run: |
           git fetch --no-tags origin "${{ github.base_ref }}"
-          ./.github/scripts/check-floor.sh
+          ${GITHUB_WORKSPACE}/.github/scripts/check-floor.sh

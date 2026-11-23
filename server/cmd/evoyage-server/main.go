@@ -12,7 +12,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/jaja360/evoyage/internal/server"
+	"github.com/jaja360/evoyage/server/internal/server"
 )
 
 // defaultAddr is used when EVOYAGE_PORT is unset.

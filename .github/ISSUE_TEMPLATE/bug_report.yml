@@ -60,8 +60,8 @@ body:
       label: Steps to reproduce
       description: Exact commands or clicks. Smaller is better.
       placeholder: |
-        1. cmake --preset debug && cmake --build --preset debug
-        2. ./build/... --region quebec-2026.10 ...
+        1. cd engine && cmake --preset debug && cmake --build --preset debug
+        2. ./engine/build/debug/evoyage-planner --region quebec-2026.10 ...
         3. ...
     validations:
       required: true

@@ -35,19 +35,19 @@ repos:
     hooks:
       - id: clang-format
         name: clang-format
-        description: Format C++ sources with the repository .clang-format
+        description: Format C++ sources with the engine .clang-format
         entry: clang-format --dry-run --Werror
         language: system
-        files: \.(c|cc|cpp|cxx|h|hh|hpp|hxx|ipp|tpp)$
-        exclude: ^(build/|cmake-build-)
+        files: ^engine/.*\.(c|cc|cpp|cxx|h|hh|hpp|hxx|ipp|tpp)$
+        exclude: ^engine/build/
 
       - id: gofumpt
         name: gofumpt
         description: Format Go sources (install with `go install mvdan.cc/gofumpt@latest`)
         entry: gofumpt -l -w
         language: system
-        files: \.go$
-        exclude: ^vendor/
+        files: ^server/.*\.go$
+        exclude: ^server/vendor/
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.27.0

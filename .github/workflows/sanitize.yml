@@ -17,6 +17,9 @@ jobs:
   sanitize:
     name: ${{ matrix.sanitizer }}
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: engine
     strategy:
       fail-fast: false
       matrix:
